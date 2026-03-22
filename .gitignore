@@ -1,32 +1,72 @@
-# Dépendances
+# ================================
+# FICHIERS À IGNORER - NE PAS COMMITTER
+# ================================
+
+# === DÉPENDANCES & PACKAGE MANAGERS ===
 node_modules/
 package-lock.json
 yarn.lock
-
-# Variables d'environnement
-.env
-.env.local
-.env.production
-
-# Logs
-logs/
-*.log
 npm-debug.log*
 yarn-debug.log*
 
-# Fichiers OS
-.DS_Store
-Thumbs.db
+# === VARIABLES D'ENVIRONNEMENT ===
+.env
+.env.local
+.env.*.local
+.env.production.local
 
-# IDE
-.vscode/
-.idea/
+# === FICHIERS DU SYSTÈME ===
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
 *.swp
 *.swo
+*~
 
-# Build
+# === IDE & ÉDITEURS ===
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.atom/
+
+# === BUILD & TEMP ===
 dist/
 build/
+.cache/
+temp/
+tmp/
 
-# Uploads (si vous gérez des fichiers uploadés)
-uploads/
+# === DOCUMENTATION (exclue du repo) ===
+README.md
+QUICKSTART.md
+DEPLOIEMENT.md
+COMMENCER-ICI.md
+STRUCTURE.md
+CONTRIBUTING.md
+CHANGELOG.md
+BUGFIX-PROJETS.md
+MIGRATION-FRONTEND-ONLY.md
+PERSONNALISATION.md
+FIX-VERCEL-CSS.md
+VERCEL-TROUBLESHOOTING.md
+
+# === SCRIPTS (exclus du repo) ===
+deploy.sh
+test-install.sh
+check-vercel.sh
+
+# === FICHIERS CONFIG NON-ESSENTIELS (exclus du repo) ===
+# Procfile (Heroku)
+Procfile
+# netlify.toml (Netlify)
+netlify.toml
+# .vercelignore
+.vercelignore
+
+# === FICHIERS README DANS LES DOSSIERS ===
+images/README.md

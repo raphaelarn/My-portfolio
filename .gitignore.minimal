@@ -1,0 +1,41 @@
+# ===== OPTION 1 : .gitignore MINIMAL =====
+# Si vous voulez que SEULEMENT les fichiers essentiels soient committés
+# Utilisez cette configuration
+
+# === IGNORER ABSOLUMENT ===
+node_modules/
+.env
+.env.*
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+dist/
+build/
+
+# === IGNORER LA DOCUMENTATION ===
+*.md
+!.gitignore
+
+# === IGNORER LES SCRIPTS ===
+*.sh
+
+# === IGNORER FICHIERS CONFIG NON-ESSENTIELS ===
+Procfile
+netlify.toml
+.vercelignore
+
+# === IGNORER IMAGES README ===
+images/README.md
+
+# === FICHIERS À TOUJOURS COMMITTER ===
+# index.html
+# admin.html
+# css/*.css
+# js/*.js
+# data/*.json
+# images/*.{jpg,png,etc} (sauf README.md)
+# package.json
+# vercel.json
+# .gitignore
