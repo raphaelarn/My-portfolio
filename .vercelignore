@@ -1,0 +1,25 @@
+# Fichiers à ignorer lors du déploiement sur Vercel
+node_modules
+.git
+.gitignore
+package-lock.json
+npm-debug.log
+.env
+.env.example
+*.md
+CHANGELOG.md
+BUGFIX-PROJETS.md
+CONTRIBUTING.md
+DEPLOIEMENT.md
+COMMENCER-ICI.md
+MIGRATION-FRONTEND-ONLY.md
+PERSONNALISATION.md
+QUICKSTART.md
+README.md
+STRUCTURE.md
+.vscode
+.DS_Store
+Procfile
+netlify.toml
+deploy.sh
+test-install.sh
