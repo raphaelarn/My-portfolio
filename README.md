@@ -1,6 +1,6 @@
 # 💼 Portfolio de Développeur
 
-Un portfolio moderne et complet avec backend pour gérer dynamiquement vos projets.
+Un portfolio moderne et responsive pour exposer vos projets. Frontend-only, simple à personnaliser et déployer.
 
 ## ✨ Fonctionnalités
 

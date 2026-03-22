@@ -1,100 +1,18 @@
-// Configuration de l'API
-const API_URL = 'http://localhost:5000/api';
+// Frontend-only admin: projects stored in localStorage (no backend)
+let currentUser = { username: 'local-admin', email: 'admin@local', role: 'admin' };
 
-// Stockage du token
-let authToken = localStorage.getItem('authToken');
-let currentUser = null;
+const projectModal = document.getElementById('project-modal');
+const projectForm = document.getElementById('project-form');
 
-// Éléments DOM
-const loginPage = document.getElementById('login-page');
-const adminDashboard = document.getElementById('admin-dashboard');
-const loginForm = document.getElementById('login-form');
-const loginError = document.getElementById('login-error');
-
-// Vérifier si l'utilisateur est connecté au chargement
 document.addEventListener('DOMContentLoaded', () => {
-    if (authToken) {
-        verifyToken();
-    }
-});
-
-// Connexion
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    try {
-        const response = await fetch(`${API_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            authToken = data.token;
-            currentUser = data.user;
-            localStorage.setItem('authToken', authToken);
-            showDashboard();
-        } else {
-            loginError.textContent = data.error || 'Erreur de connexion';
-        }
-    } catch (error) {
-        loginError.textContent = 'Impossible de se connecter au serveur';
-        console.error(error);
-    }
-});
-
-// Vérifier le token
-async function verifyToken() {
-    try {
-        const response = await fetch(`${API_URL}/auth/verify`, {
-            headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            currentUser = data.user;
-            showDashboard();
-        } else {
-            logout();
-        }
-    } catch (error) {
-        console.error('Erreur de vérification:', error);
-        logout();
-    }
-}
-
-// Afficher le dashboard
-function showDashboard() {
-    loginPage.style.display = 'none';
-    adminDashboard.style.display = 'grid';
+    // Bypass login: show dashboard immediately
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'grid';
     document.getElementById('user-name').textContent = currentUser.username;
-    
-    // Charger les données initiales
     loadProjects();
     loadMessages();
     updateSettings();
-}
-
-// Déconnexion
-document.getElementById('logout-btn').addEventListener('click', (e) => {
-    e.preventDefault();
-    logout();
 });
-
-function logout() {
-    localStorage.removeItem('authToken');
-    authToken = null;
-    currentUser = null;
-    loginPage.style.display = 'flex';
-    adminDashboard.style.display = 'none';
-    loginError.textContent = '';
-    loginForm.reset();
-}
 
 // Navigation entre sections
 document.querySelectorAll('.nav-item').forEach(item => {
@@ -103,72 +21,76 @@ document.querySelectorAll('.nav-item').forEach(item => {
         
         e.preventDefault();
         const section = item.dataset.section;
-        
-        // Mettre à jour la navigation
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
-        
-        // Afficher la section correspondante
         document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
         document.getElementById(`${section}-section`).style.display = 'block';
-        
-        // Mettre à jour le titre
-        const titles = {
-            projects: 'Gestion des Projets',
-            messages: 'Messages de Contact',
-            settings: 'Paramètres'
-        };
+        const titles = { projects: 'Gestion des Projets', messages: 'Messages de Contact', settings: 'Paramètres' };
         document.getElementById('page-title').textContent = titles[section];
-        
-        // Charger les données de la section
         if (section === 'projects') loadProjects();
         if (section === 'messages') loadMessages();
     });
 });
 
-// GESTION DES PROJETS
+// UTIL helpers for localStorage projects
+function getStoredProjects() {
+    const raw = localStorage.getItem('projects');
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { localStorage.removeItem('projects'); return null; }
+}
+
+function saveStoredProjects(projects) {
+    localStorage.setItem('projects', JSON.stringify(projects));
+}
+
+function generateId() {
+    return 'proj-' + Math.random().toString(36).slice(2, 9);
+}
+
+// Load projects from localStorage or from data/projects.json
 async function loadProjects() {
     const tbody = document.getElementById('projects-table-body');
     tbody.innerHTML = '<tr><td colspan="4" class="loading">Chargement...</td></tr>';
-    
+
+    const stored = getStoredProjects();
+    if (stored) {
+        renderProjectsTable(stored);
+        return;
+    }
+
     try {
-        const response = await fetch(`${API_URL}/projects`);
-        const projects = await response.json();
-        
-        if (projects.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="loading">Aucun projet</td></tr>';
-            return;
-        }
-        
-        tbody.innerHTML = projects.map(project => `
-            <tr>
-                <td><strong>${project.title}</strong></td>
-                <td>
-                    ${project.technologies.map(tech => `<span class="tag">${tech}</span>`).join('')}
-                </td>
-                <td>${new Date(project.createdAt).toLocaleDateString('fr-FR')}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn-icon" onclick="editProject('${project._id}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn-icon delete" onclick="deleteProject('${project._id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    } catch (error) {
-        tbody.innerHTML = '<tr><td colspan="4" class="loading">Erreur de chargement</td></tr>';
-        console.error(error);
+        const resp = await fetch('/data/projects.json');
+        if (!resp.ok) throw new Error('projects.json introuvable');
+        const projects = await resp.json();
+        renderProjectsTable(projects);
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="4" class="loading">Aucun projet</td></tr>';
     }
 }
 
-// Modal de projet
-const projectModal = document.getElementById('project-modal');
-const projectForm = document.getElementById('project-form');
+function renderProjectsTable(projects) {
+    const tbody = document.getElementById('projects-table-body');
+    if (!projects || projects.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="loading">Aucun projet</td></tr>';
+        return;
+    }
+    tbody.innerHTML = projects.map(project => `
+        <tr>
+            <td><strong>${project.title}</strong></td>
+            <td>${(project.technologies||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</td>
+            <td>${project.createdAt ? new Date(project.createdAt).toLocaleDateString('fr-FR') : '-'}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon" onclick="editProject('${project._id||''}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn-icon delete" onclick="deleteProject('${project._id||''}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
 
+// Modal actions
 document.getElementById('add-project-btn').addEventListener('click', () => {
     document.getElementById('modal-title').textContent = 'Nouveau Projet';
     projectForm.reset();
@@ -176,99 +98,126 @@ document.getElementById('add-project-btn').addEventListener('click', () => {
     projectModal.classList.add('active');
 });
 
-document.querySelectorAll('.close, #cancel-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        projectModal.classList.remove('active');
-    });
-});
+document.querySelectorAll('.close, #cancel-btn').forEach(btn => btn.addEventListener('click', ()=> projectModal.classList.remove('active')));
 
-// Soumettre le formulaire de projet
-projectForm.addEventListener('submit', async (e) => {
+projectForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
-    const projectData = {
+    const projects = getStoredProjects() || [];
+    const projectId = document.getElementById('project-id').value;
+    const data = {
+        _id: projectId || generateId(),
         title: document.getElementById('project-title').value,
         description: document.getElementById('project-description').value,
         image: document.getElementById('project-image').value,
-        technologies: document.getElementById('project-technologies').value
-            .split(',').map(t => t.trim()).filter(t => t),
+        technologies: document.getElementById('project-technologies').value.split(',').map(t=>t.trim()).filter(Boolean),
         github: document.getElementById('project-github').value,
         demo: document.getElementById('project-demo').value,
-        featured: document.getElementById('project-featured').checked
+        featured: document.getElementById('project-featured').checked,
+        createdAt: projectId ? (projects.find(p=>p._id===projectId)?.createdAt) : new Date().toISOString()
     };
-    
-    const projectId = document.getElementById('project-id').value;
-    const method = projectId ? 'PUT' : 'POST';
-    const url = projectId ? `${API_URL}/projects/${projectId}` : `${API_URL}/projects`;
-    
-    try {
-        const response = await fetch(url, {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify(projectData)
-        });
-        
-        if (response.ok) {
-            projectModal.classList.remove('active');
-            loadProjects();
-            alert('Projet enregistré avec succès !');
-        } else {
-            const error = await response.json();
-            alert('Erreur: ' + error.error);
-        }
-    } catch (error) {
-        alert('Erreur de connexion au serveur');
-        console.error(error);
+
+    if (projectId) {
+        const idx = projects.findIndex(p=>p._id===projectId);
+        if (idx !== -1) projects[idx] = data;
+    } else {
+        projects.push(data);
     }
+    saveStoredProjects(projects);
+    projectModal.classList.remove('active');
+    loadProjects();
+    alert('Projet enregistré localement.');
 });
 
-// Modifier un projet
-window.editProject = async function(id) {
-    try {
-        const response = await fetch(`${API_URL}/projects/${id}`);
-        const project = await response.json();
-        
-        document.getElementById('modal-title').textContent = 'Modifier le Projet';
-        document.getElementById('project-id').value = project._id;
-        document.getElementById('project-title').value = project.title;
-        document.getElementById('project-description').value = project.description;
-        document.getElementById('project-image').value = project.image || '';
-        document.getElementById('project-technologies').value = project.technologies.join(', ');
-        document.getElementById('project-github').value = project.github || '';
-        document.getElementById('project-demo').value = project.demo || '';
-        document.getElementById('project-featured').checked = project.featured;
-        
-        projectModal.classList.add('active');
-    } catch (error) {
-        alert('Erreur lors du chargement du projet');
-        console.error(error);
+// Edit / Delete
+window.editProject = function(id) {
+    const projects = getStoredProjects() || [];
+    const project = projects.find(p=>p._id===id);
+    if (!project) return alert('Projet introuvable');
+    document.getElementById('modal-title').textContent = 'Modifier le Projet';
+    document.getElementById('project-id').value = project._id;
+    document.getElementById('project-title').value = project.title;
+    document.getElementById('project-description').value = project.description;
+    document.getElementById('project-image').value = project.image || '';
+    document.getElementById('project-technologies').value = (project.technologies||[]).join(', ');
+    document.getElementById('project-github').value = project.github || '';
+    document.getElementById('project-demo').value = project.demo || '';
+    document.getElementById('project-featured').checked = !!project.featured;
+    projectModal.classList.add('active');
+};
+
+window.deleteProject = function(id) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) return;
+    let projects = getStoredProjects() || [];
+    projects = projects.filter(p=>p._id!==id);
+    saveStoredProjects(projects);
+    loadProjects();
+    alert('Projet supprimé localement');
+};
+
+// MESSAGES: simple local list (no backend)
+function loadMessages() {
+    const tbody = document.getElementById('messages-table-body');
+    const messages = JSON.parse(localStorage.getItem('messages')||'[]');
+    const unreadCount = messages.filter(m=>!m.read).length;
+    document.getElementById('unread-count').textContent = unreadCount>0?unreadCount:'';
+    if (messages.length===0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="loading">Aucun message</td></tr>';
+        return;
+    }
+    tbody.innerHTML = messages.map(m=>`
+        <tr class="${m.read? '':'message-unread'}">
+            <td>${m.name}</td>
+            <td>${m.email}</td>
+            <td class="message-preview">${m.message}</td>
+            <td>${new Date(m.createdAt).toLocaleDateString('fr-FR')}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon" onclick="viewMessage('${m.id}')"><i class="fas fa-eye"></i></button>
+                    <button class="btn-icon delete" onclick="deleteMessage('${m.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+window.viewMessage = function(id) {
+    const messages = JSON.parse(localStorage.getItem('messages')||'[]');
+    const m = messages.find(x=>x.id===id);
+    if (!m) return alert('Message introuvable');
+    document.getElementById('message-name').textContent = m.name;
+    document.getElementById('message-email').textContent = m.email;
+    document.getElementById('message-email').href = `mailto:${m.email}`;
+    document.getElementById('message-date').textContent = new Date(m.createdAt).toLocaleString('fr-FR');
+    document.getElementById('message-text').textContent = m.message;
+    document.getElementById('message-modal').classList.add('active');
+    if (!m.read) {
+        m.read = true;
+        localStorage.setItem('messages', JSON.stringify(messages));
+        loadMessages();
     }
 };
 
-// Supprimer un projet
-window.deleteProject = async function(id) {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) return;
-    
-    try {
-        const response = await fetch(`${API_URL}/projects/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-        
-        if (response.ok) {
-            loadProjects();
-            alert('Projet supprimé avec succès');
-        } else {
-            alert('Erreur lors de la suppression');
-        }
-    } catch (error) {
-        alert('Erreur de connexion au serveur');
-        console.error(error);
-    }
+window.deleteMessage = function(id) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) return;
+    let messages = JSON.parse(localStorage.getItem('messages')||'[]');
+    messages = messages.filter(m=>m.id!==id);
+    localStorage.setItem('messages', JSON.stringify(messages));
+    loadMessages();
 };
+
+// Settings
+function updateSettings() {
+    document.getElementById('settings-username').textContent = currentUser.username;
+    document.getElementById('settings-email').textContent = currentUser.email;
+    document.getElementById('settings-role').textContent = currentUser.role;
+    document.getElementById('api-url').textContent = 'Local: admin et projets en localStorage';
+}
+
+document.getElementById('test-api-btn').addEventListener('click', () => {
+    const statusDiv = document.getElementById('api-status');
+    statusDiv.className = 'success';
+    statusDiv.textContent = '✅ Mode local: pas d\'API externe requise';
+});
 
 // GESTION DES MESSAGES
 async function loadMessages() {

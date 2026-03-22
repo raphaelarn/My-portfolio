@@ -1,36 +1,19 @@
 {
-  "name": "portfolio-backend",
+  "name": "portfolio",
   "version": "1.0.0",
-  "description": "Backend API pour portfolio de développeur",
-  "main": "server/server.js",
+  "description": "Portfolio frontend - visionneur de projets développés",
+  "main": "index.html",
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "nodemon server/server.js",
-    "seed": "node server/seed.js"
+    "start": "python3 -m http.server 8000",
+    "serve": "npx http-server -p 8000"
   },
   "keywords": [
     "portfolio",
-    "api",
-    "express",
-    "mongodb"
+    "frontend",
+    "projects"
   ],
   "author": "Votre Nom",
   "license": "MIT",
-  "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^8.0.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }

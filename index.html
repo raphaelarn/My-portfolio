@@ -1,169 +1,474 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Portfolio - Développeur</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anjaniaina Rayan — Dev Full Stack</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ── Project Card with inline preview ────── */
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .project-card:hover {
+      border-color: var(--border-focus);
+    }
+
+    /* Mini browser chrome */
+    .card-chrome {
+      height: 32px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      flex-shrink: 0;
+    }
+
+    .card-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .card-dots span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .dot-r { background: #e05c5c; }
+    .dot-y { background: #e8c547; }
+    .dot-b { background: #5b8dee; }
+
+    .card-url {
+      flex: 1;
+      height: 18px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 5px;
+      overflow: hidden;
+    }
+
+    .card-url i {
+      color: var(--text-3);
+      font-size: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    .card-url span {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Iframe preview area */
+    .card-preview {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .card-preview iframe {
+      width: 200%;
+      height: 200%;
+      border: none;
+      transform: scale(0.5);
+      transform-origin: top left;
+      pointer-events: none;
+    }
+
+    /* Overlay on hover to show "Visiter" CTA */
+    .card-preview-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(13, 15, 20, 0.0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s, background 0.2s;
+    }
+
+    .card-preview:hover .card-preview-overlay {
+      opacity: 1;
+      background: rgba(13, 15, 20, 0.55);
+    }
+
+    .card-preview-overlay a {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-1);
+      border: 1px solid var(--border-focus);
+      background: var(--surface);
+      padding: 7px 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .card-preview-overlay a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Loader inside preview */
+    .card-loader {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      transition: opacity 0.3s;
+    }
+
+    .card-loader.hidden { opacity: 0; pointer-events: none; }
+
+    .loader-ring {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Card content below preview */
+    .project-header {
+      padding: 1.1rem 1.25rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge-featured {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--highlight);
+      border: 1px solid var(--highlight);
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+
+    .project-content {
+      padding: 0.75rem 1.25rem 1.25rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .project-content h3 {
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-1);
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.01em;
+    }
+
+    .project-content p {
+      color: var(--text-2);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      flex: 1;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .tag {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 2px 9px;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.04em;
+    }
+
+    .project-links {
+      display: flex;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .project-links a {
+      flex: 1;
+      padding: 9px;
+      color: var(--text-3);
+      text-decoration: none;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: color 0.15s, background 0.15s;
+      letter-spacing: 0.04em;
+    }
+
+    .project-links a + a { border-left: 1px solid var(--border); }
+
+    .project-links a:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+  </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="logo">
-                <h2>Dev<span>Portfolio</span></h2>
-            </div>
-            <ul class="nav-links">
-                <li><a href="#home">Accueil</a></li>
-                <li><a href="#about">À propos</a></li>
-                <li><a href="#skills">Compétences</a></li>
-                <li><a href="#projects">Projets</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-            <div class="burger">
-                <div class="line1"></div>
-                <div class="line2"></div>
-                <div class="line3"></div>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1>Bonjour, je suis <span class="typed-text"></span></h1>
-                <p class="hero-description">Développeur Full Stack passionné par la création d'applications web modernes</p>
-                <div class="hero-buttons">
-                    <a href="#projects" class="btn btn-primary">Voir mes projets</a>
-                    <a href="#contact" class="btn btn-secondary">Me contacter</a>
-                </div>
-                <div class="social-links">
-                    <a href="https://github.com/votre-github" target="_blank"><i class="fab fa-github"></i></a>
-                    <a href="https://linkedin.com/in/votre-linkedin" target="_blank"><i class="fab fa-linkedin"></i></a>
-                    <a href="https://twitter.com/votre-twitter" target="_blank"><i class="fab fa-twitter"></i></a>
-                </div>
-            </div>
-        </div>
-    </section>
+  <!-- ── Navigation ─────────────────────────── -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="logo">
+        <h2>Ra<span>yan</span></h2>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#home">Accueil</a></li>
+        <li><a href="#about">À propos</a></li>
+        <li><a href="#skills">Compétences</a></li>
+        <li><a href="#projects">Projets</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="burger">
+        <div class="line1"></div>
+        <div class="line2"></div>
+        <div class="line3"></div>
+      </div>
+    </div>
+  </nav>
 
-    <!-- About Section -->
-    <section id="about" class="about">
-        <div class="container">
-            <h2 class="section-title">À Propos de Moi</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <h3>Développeur Full Stack</h3>
-                    <p>
-                        Passionné par le développement web et mobile, je crée des solutions innovantes 
-                        et performantes. Avec une expérience dans diverses technologies modernes, 
-                        je m'efforce de livrer des produits de qualité qui répondent aux besoins des utilisateurs.
-                    </p>
-                    <p>
-                        Mon objectif est de continuer à apprendre et à m'améliorer tout en contribuant 
-                        à des projets significatifs qui ont un impact positif.
-                    </p>
-                    <a href="#contact" class="btn btn-primary">Télécharger CV</a>
-                </div>
-                <div class="about-image">
-                    <img src="images/profile.jpg" alt="Photo de profil">
-                </div>
-            </div>
+  <!-- ── Hero ───────────────────────────────── -->
+  <section id="home" class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Bonjour, je suis <span class="typed-text"></span></h1>
+        <p class="hero-description">Développeur Full Stack passionné par la création d'applications web modernes</p>
+        <div class="hero-buttons">
+          <a href="#projects" class="btn btn-primary">Voir mes projets</a>
+          <a href="#contact" class="btn btn-secondary">Me contacter</a>
         </div>
-    </section>
-
-    <!-- Skills Section -->
-    <section id="skills" class="skills">
-        <div class="container">
-            <h2 class="section-title">Mes Compétences</h2>
-            <div class="skills-grid">
-                <div class="skill-card">
-                    <i class="fab fa-html5"></i>
-                    <h3>Frontend</h3>
-                    <p>HTML5, CSS3, JavaScript, React, Vue.js, Tailwind CSS</p>
-                </div>
-                <div class="skill-card">
-                    <i class="fab fa-node"></i>
-                    <h3>Backend</h3>
-                    <p>Node.js, Express, Python, Django, FastAPI</p>
-                </div>
-                <div class="skill-card">
-                    <i class="fas fa-database"></i>
-                    <h3>Bases de données</h3>
-                    <p>MongoDB, PostgreSQL, MySQL, Redis</p>
-                </div>
-                <div class="skill-card">
-                    <i class="fab fa-docker"></i>
-                    <h3>DevOps</h3>
-                    <p>Docker, Git, CI/CD, AWS, Heroku</p>
-                </div>
-            </div>
+        <div class="social-links">
+          <a href="https://github.com/raphaelarn" target="_blank"><i class="fab fa-github"></i></a>
+          <a href="https://linkedin.com/in/anjaniaina-rayan-rakotoarimavo-4b03b7394" target="_blank"><i class="fab fa-linkedin"></i></a>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- Projects Section -->
-    <section id="projects" class="projects">
-        <div class="container">
-            <h2 class="section-title">Mes Projets</h2>
-            <div id="projects-grid" class="projects-grid">
-                <!-- Les projets seront chargés dynamiquement depuis le backend -->
-                <div class="loading">Chargement des projets...</div>
-            </div>
+  <!-- ── About ──────────────────────────────── -->
+  <section id="about" class="about">
+    <div class="container">
+      <h2 class="section-title">À Propos de Moi</h2>
+      <div class="about-content">
+        <div class="about-text">
+          <h3>Développeur Full Stack</h3>
+          <p>Curieux et passionné, je suis constamment à la recherche de nouvelles connaissances et de défis à relever. Animé par une forte envie d'innover, je m'investis pleinement dans chaque projet, prêt à explorer, expérimenter et repousser les limites pour créer des solutions uniques et efficaces.</p>
+          <a href="#contact" class="btn btn-primary">Télécharger CV</a>
         </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2 class="section-title">Me Contacter</h2>
-            <div class="contact-content">
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <i class="fas fa-envelope"></i>
-                        <div>
-                            <h3>Email</h3>
-                            <p>votre.email@example.com</p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-phone"></i>
-                        <div>
-                            <h3>Téléphone</h3>
-                            <p>+33 6 XX XX XX XX</p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div>
-                            <h3>Localisation</h3>
-                            <p>Paris, France</p>
-                        </div>
-                    </div>
-                </div>
-                <form id="contact-form" class="contact-form">
-                    <input type="text" name="name" placeholder="Votre nom" required>
-                    <input type="email" name="email" placeholder="Votre email" required>
-                    <textarea name="message" placeholder="Votre message" rows="5" required></textarea>
-                    <button type="submit" class="btn btn-primary">Envoyer</button>
-                </form>
-            </div>
+        <div class="about-image">
+          <img src="images/profile.jpeg" alt="Photo de profil">
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Mon Portfolio. Tous droits réservés.</p>
-            <div class="footer-links">
-                <a href="#home">Accueil</a>
-                <a href="#about">À propos</a>
-                <a href="#projects">Projets</a>
-                <a href="#contact">Contact</a>
-            </div>
+  <!-- ── Skills ─────────────────────────────── -->
+  <section id="skills" class="skills">
+    <div class="container">
+      <h2 class="section-title">Mes Compétences</h2>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <i class="fab fa-html5"></i>
+          <h3>Frontend</h3>
+          <p>HTML5, CSS3, JavaScript, React, Vue.js, Tailwind CSS</p>
         </div>
-    </footer>
+        <div class="skill-card">
+          <i class="fab fa-node"></i>
+          <h3>Backend</h3>
+          <p>Node.js, Express, Python, Django, FastAPI</p>
+        </div>
+        <div class="skill-card">
+          <i class="fas fa-database"></i>
+          <h3>Bases de données</h3>
+          <p>MongoDB, PostgreSQL, MySQL, Redis</p>
+        </div>
+        <div class="skill-card">
+          <i class="fab fa-docker"></i>
+          <h3>DevOps</h3>
+          <p>Docker, Git, CI/CD, AWS, Heroku</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script src="js/script.js"></script>
+  <!-- ── Projects ───────────────────────────── -->
+  <section id="projects" class="projects">
+    <div class="container">
+      <h2 class="section-title">Mes Projets</h2>
+      <div id="projects-grid" class="projects-grid"></div>
+    </div>
+  </section>
+
+  <!-- ── Contact ────────────────────────────── -->
+  <section id="contact" class="contact">
+    <div class="container">
+      <h2 class="section-title">Me Contacter</h2>
+      <div class="contact-content">
+        <div class="contact-info">
+          <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <div>
+              <h3>Email</h3>
+              <p>raphael.anjaniaina.arn@gmail.com</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-phone"></i>
+            <div>
+              <h3>Téléphone</h3>
+              <p>+261 23 914 79</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <div>
+              <h3>Localisation</h3>
+              <p>Antananarivo, Madagascar</p>
+            </div>
+          </div>
+        </div>
+        <form id="contact-form" class="contact-form">
+          <input type="text" name="name" placeholder="Votre nom" required>
+          <input type="email" name="email" placeholder="Votre email" required>
+          <textarea name="message" placeholder="Votre message" rows="5" required></textarea>
+          <button type="submit" class="btn btn-primary">Envoyer</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ─────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Anjaniaina Rayan. <span>Tous droits réservés.</span></p>
+      <div class="footer-links">
+        <a href="#home">Accueil</a>
+        <a href="#about">À propos</a>
+        <a href="#projects">Projets</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="js/script.js"></script>
+  <script>
+    function renderProjects(projects) {
+      const grid = document.getElementById('projects-grid');
+      const sorted = [...projects].sort((a, b) => a.order - b.order);
+
+      grid.innerHTML = sorted.map(p => `
+        <div class="project-card">
+
+          <!-- Mini browser chrome -->
+          <div class="card-chrome">
+            <div class="card-dots">
+              <span class="dot-r"></span>
+              <span class="dot-y"></span>
+              <span class="dot-b"></span>
+            </div>
+            <div class="card-url">
+              <i class="fas fa-lock"></i>
+              <span>${p.demo ? p.demo.replace('https://', '') : '—'}</span>
+            </div>
+          </div>
+
+          <!-- Inline iframe preview -->
+          <div class="card-preview">
+            <div class="card-loader" id="loader-${p._id}">
+              <div class="loader-ring"></div>
+            </div>
+            ${p.demo ? `
+              <iframe
+                src="${p.demo}"
+                title="${p.title}"
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-forms"
+                onload="document.getElementById('loader-${p._id}').classList.add('hidden')"
+              ></iframe>
+              <div class="card-preview-overlay">
+                <a href="${p.demo}" target="_blank" rel="noopener">
+                  <i class="fas fa-external-link-alt"></i> Visiter le site
+                </a>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Info -->
+          <div class="project-header">
+            <h3 style="font-family:var(--font-sans);font-size:1rem;font-weight:700;color:var(--text-1);letter-spacing:-0.01em;">${p.title}</h3>
+            ${p.featured ? '<span class="badge-featured">★ Featured</span>' : ''}
+          </div>
+
+          <div class="project-content">
+            <p>${p.description}</p>
+            <div class="project-tags">
+              ${p.technologies.map(t => `<span class="tag">${t}</span>`).join('')}
+            </div>
+          </div>
+
+          ${p.demo || p.github ? `
+            <div class="project-links">
+              ${p.demo ? `<a href="${p.demo}" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Visiter</a>` : ''}
+              ${p.github ? `<a href="${p.github}" target="_blank" rel="noopener"><i class="fab fa-github"></i> Code</a>` : ''}
+            </div>
+          ` : ''}
+
+        </div>
+      `).join('');
+    }
+
+    fetch('data/projects.json')
+      .then(res => {
+        if (!res.ok) throw new Error('fetch failed');
+        return res.json();
+      })
+      .then(projects => renderProjects(projects))
+      .catch(() => {
+        document.getElementById('projects-grid').innerHTML =
+          '<div class="loading">Impossible de charger les projets.</div>';
+      });
+  </script>
 </body>
 </html>

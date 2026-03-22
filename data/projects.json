@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "proj-1",
+    "title": "Dispositif District",
+    "description": "Une plateforme de collaboration et de gestion de centre ressources et des outils a disposition des membres.",
+    "technologies": ["React", "Node.js", "PostgreSQL"],
+    "demo": "https://idistrika.tsirylab.com/",
+    "featured": true,
+    "order": 1
+  },
+  {
+    "_id": "proj-2",
+    "title": "Tsen@be",
+    "description": "Plateforme de multiboutique.",
+    "technologies": ["Next.js", "Node.js", "PostgreSQL"],
+    "demo": "https://tsenabe.app/",
+    "featured": true,
+    "order": 2
+  }
+]

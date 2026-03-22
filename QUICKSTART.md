@@ -1,76 +1,43 @@
 # 🚀 Guide de Démarrage Rapide
 
-## Installation en 5 minutes
+## Installation en 2 minutes
 
-### 1️⃣ Installer les dépendances
+### 1️⃣ Lancer le serveur web
 
-```bash
-npm install
-```
-
-### 2️⃣ Configurer l'environnement
+Depuis le dossier du projet :
 
 ```bash
-cp .env.example .env
-```
-
-### 3️⃣ Démarrer MongoDB
-
-**Ubuntu/Debian :**
-```bash
-sudo systemctl start mongodb
-```
-
-**macOS :**
-```bash
-brew services start mongodb-community
-```
-
-**Windows :**
-Lancez MongoDB Compass ou le service MongoDB
-
-### 4️⃣ Initialiser la base de données
-
-```bash
-npm run seed
-```
-
-### 5️⃣ Démarrer le serveur
-
-```bash
-npm run dev
-```
-
-### 6️⃣ Ouvrir le portfolio
-
-Dans un nouveau terminal :
-
-```bash
-# Option 1 : Python
+# Option 1 : Python (recommandé)
 python3 -m http.server 8000
 
 # Option 2 : Node.js
 npx http-server -p 8000
 ```
 
-Ouvrez votre navigateur :
+### 2️⃣ Ouvrir le portfolio
+
+Dans votre navigateur :
 - **Portfolio** : http://localhost:8000/
 - **Admin** : http://localhost:8000/admin.html
 
-### 🔐 Identifiants par défaut
+---
 
-- **Email** : admin@portfolio.com
-- **Mot de passe** : admin123
+## � Fonctionnalités
+
+- ✅ Portfolio frontend sans backend
+- ✅ Affichage des projets depuis `data/projects.json`
+- ✅ Admin panel avec stockage localStorage
+- ✅ Ajouter/modifier/supprimer des projets en local
+- ✅ Responsive design
+- ✅ Prêt pour déploiement statique (Netlify, Vercel, GitHub Pages)
 
 ---
 
 ## ⚡ Commandes principales
 
 ```bash
-npm install          # Installer les dépendances
-npm run dev          # Démarrer en mode développement
-npm start            # Démarrer en mode production
-npm run seed         # Réinitialiser la base de données
+python3 -m http.server 8000     # Démarrer le serveur Python
+npx http-server -p 8000         # Démarrer avec http-server
 ```
 
 ---
@@ -81,31 +48,26 @@ npm run seed         # Réinitialiser la base de données
 - [ ] Ajouter votre photo dans `images/profile.jpg`
 - [ ] Changer les couleurs dans `css/style.css`
 - [ ] Ajouter vos liens sociaux
-- [ ] Créer vos projets via l'admin
+- [ ] Ajouter/modifier vos projets dans l'admin (`admin.html`)
 - [ ] Personnaliser le README.md
-- [ ] Changer le mot de passe admin
+- [ ] Tester avant déploiement
 
 ---
 
-## 🐛 Problèmes courants
+## 🐛 Troubleshooting
 
-### MongoDB ne démarre pas
+### Port 8000 déjà utilisé ?
+Utilisez un autre port :
 ```bash
-# Vérifier le statut
-sudo systemctl status mongodb
-
-# Redémarrer
-sudo systemctl restart mongodb
+python3 -m http.server 8080
+# ou
+npx http-server -p 8080
 ```
 
-### Port déjà utilisé
-Changez le port dans `.env` :
-```env
-PORT=5001
-```
-
-### Erreur de connexion à l'API
-Vérifiez que l'URL dans `js/script.js` et `js/admin.js` correspond à votre serveur.
+### Projets ne s'affichent pas ?
+1. Vérifiez que `data/projects.json` existe
+2. Ouvrez la console navigateur (F12) pour voir les erreurs
+3. Les projets modifiés dans l'admin sont sauvegardés en localStorage
 
 ---
 

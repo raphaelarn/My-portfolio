@@ -2,7 +2,7 @@
 
 Ce guide vous aide à personnaliser votre portfolio selon vos besoins.
 
-## 📝 Informations personnelles
+## Informations personnelles
 
 ### Dans `index.html`
 
@@ -16,29 +16,28 @@ Ce guide vous aide à personnaliser votre portfolio selon vos besoins.
 #### 2. Liens sociaux
 ```html
 <!-- Ligne 54-57 -->
-<a href="https://github.com/VOTRE-USERNAME" target="_blank">
-<a href="https://linkedin.com/in/VOTRE-PROFIL" target="_blank">
-<a href="https://twitter.com/VOTRE-COMPTE" target="_blank">
+<a href="https://github.com/raphaelarn" target="_blank">
+<a href="https://linkedin.com/in/anjaniaina-rayan-rakotoarimavo-4b03b7394" target="_blank">
 ```
 
 #### 3. Section À propos
 ```html
 <!-- Ligne 69-77 -->
 <h3>Développeur Full Stack</h3>
-<p>Votre description personnelle...</p>
+<p>Curieux et passionné, je suis constamment à la recherche de nouvelles connaissances et de défis à relever. Animé par une forte envie d’innover, je m’investis pleinement dans chaque projet, prêt à explorer, expérimenter et repousser les limites pour créer des solutions uniques et efficaces.</p>
 ```
 
 #### 4. Informations de contact
 ```html
 <!-- Ligne 132-149 -->
-<p>votre.email@example.com</p>
-<p>+33 6 XX XX XX XX</p>
-<p>Paris, France</p>
+<p>raphael.anjaniaina.arn@gmail.com</p>
+<p>+261 23 914 79</p>
+<p>Antananarivo, Madagascar</p>
 ```
 
 ---
 
-## 🎨 Design et couleurs
+##  Design et couleurs
 
 ### Modifier les couleurs dans `css/style.css`
 
@@ -57,31 +56,31 @@ Ce guide vous aide à personnaliser votre portfolio selon vos besoins.
 
 ### Exemples de palettes de couleurs
 
-#### 🔵 Bleu professionnel (défaut)
+####  Bleu professionnel (défaut)
 ```css
 --primary-color: #6366f1;
 --secondary-color: #8b5cf6;
 ```
 
-#### 🟢 Vert tech
+####  Vert tech
 ```css
 --primary-color: #10b981;
 --secondary-color: #14b8a6;
 ```
 
-#### 🔴 Rouge dynamique
+####  Rouge dynamique
 ```css
 --primary-color: #ef4444;
 --secondary-color: #f97316;
 ```
 
-#### 🟣 Violet créatif
+####  Violet créatif
 ```css
 --primary-color: #a855f7;
 --secondary-color: #ec4899;
 ```
 
-#### 🟡 Orange énergique
+####  Orange énergique
 ```css
 --primary-color: #f59e0b;
 --secondary-color: #f97316;
@@ -108,7 +107,7 @@ Les images de projets peuvent être :
 
 ---
 
-## ⚙️ Fonctionnalités
+## Fonctionnalités
 
 ### Modifier le texte animé
 
@@ -118,7 +117,7 @@ Dans `js/script.js`, ligne 22-23 :
 const texts = [
     'Développeur Full Stack', 
     'Créateur d\'Applications Web', 
-    'Passionné par le Code'
+    '
 ];
 ```
 
@@ -164,7 +163,7 @@ Suivez la documentation : https://www.emailjs.com/
 
 ---
 
-## 🔧 Configuration de l'API
+##  Configuration de l'API
 
 ### Modifier l'URL de l'API
 

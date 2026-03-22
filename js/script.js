@@ -1,5 +1,6 @@
-// Configuration de l'API
-const API_URL = 'http://localhost:5000/api';
+// Frontend local: plus de backend. Les projets sont chargés depuis `data/projects.json`
+// ou depuis localStorage si l'utilisateur a personnalisé via l'admin.
+const LOCAL_PROJECTS_PATH = '/data/projects.json';
 
 // Navigation Mobile
 const burger = document.querySelector('.burger');
@@ -63,78 +64,129 @@ function typeText() {
 // Démarrer l'animation de texte tapé
 typeText();
 
-// Charger les projets depuis le backend
+// Charger les projets depuis data/projects.json ou fallback à localStorage
 async function loadProjects() {
     const projectsGrid = document.getElementById('projects-grid');
-    
-    try {
-        const response = await fetch(`${API_URL}/projects`);
-        const projects = await response.json();
 
-        if (projects.length === 0) {
-            projectsGrid.innerHTML = '<p class="loading">Aucun projet disponible pour le moment.</p>';
+    // Récupérer projets depuis localStorage si présents (admin local)
+    const local = localStorage.getItem('projects');
+    if (local) {
+        try {
+            const projects = JSON.parse(local);
+            renderProjects(projects);
             return;
+        } catch (e) {
+            console.warn('Projets en local corrompus, suppression du cache localStorage');
+            localStorage.removeItem('projects');
         }
+    }
 
-        projectsGrid.innerHTML = projects.map(project => `
-            <div class="project-card">
-                <img src="${project.image || 'images/default-project.jpg'}" alt="${project.title}" class="project-image">
-                <div class="project-content">
-                    <h3>${project.title}</h3>
-                    <p>${project.description}</p>
-                    <div class="project-tags">
-                        ${project.technologies.map(tech => `<span class="tag">${tech}</span>`).join('')}
-                    </div>
-                    <div class="project-links">
-                        ${project.github ? `<a href="${project.github}" target="_blank"><i class="fab fa-github"></i> Code</a>` : ''}
-                        ${project.demo ? `<a href="${project.demo}" target="_blank"><i class="fas fa-external-link-alt"></i> Demo</a>` : ''}
-                    </div>
+    // Sinon charger le fichier local data/projects.json
+    try {
+        const resp = await fetch(LOCAL_PROJECTS_PATH);
+        if (!resp.ok) throw new Error('Fichier projects.json introuvable');
+        const projects = await resp.json();
+        renderProjects(projects);
+    } catch (error) {
+        console.error('Erreur lors du chargement des projets locaux:', error);
+        projectsGrid.innerHTML = '<p class="loading">Aucun projet disponible. Vous pouvez ajouter des projets via l\'admin.</p>';
+    }
+}
+
+function renderProjects(projects) {
+    const projectsGrid = document.getElementById('projects-grid');
+    if (!projects || projects.length === 0) {
+        projectsGrid.innerHTML = '<p class="loading">Aucun projet disponible pour le moment.</p>';
+        return;
+    }
+
+    projectsGrid.innerHTML = projects.map((project, idx) => `
+        <div class="project-card">
+            <!-- Mini browser chrome -->
+            <div class="card-chrome">
+                <div class="card-dots">
+                    <span class="dot-r"></span>
+                    <span class="dot-y"></span>
+                    <span class="dot-b"></span>
+                </div>
+                <div class="card-url">
+                    <i class="fas fa-lock"></i>
+                    <span>${project.demo ? project.demo.replace('https://', '') : '—'}</span>
                 </div>
             </div>
-        `).join('');
-    } catch (error) {
-        console.error('Erreur lors du chargement des projets:', error);
-        projectsGrid.innerHTML = `
-            <div class="loading">
-                <p>Impossible de charger les projets. Assurez-vous que le backend est démarré.</p>
-                <p style="font-size: 0.9rem; margin-top: 1rem;">Pour démarrer le backend: <code>npm run dev</code></p>
+
+            <!-- Inline iframe preview -->
+            <div class="card-preview">
+                <div class="card-loader" id="loader-${project._id}">
+                    <div class="loader-ring"></div>
+                </div>
+                ${project.demo ? `
+                    <iframe
+                        src="${project.demo}"
+                        title="${project.title}"
+                        loading="lazy"
+                        sandbox="allow-scripts allow-same-origin allow-forms"
+                        onload="document.getElementById('loader-${project._id}').classList.add('hidden')"
+                    ></iframe>
+                    <div class="card-preview-overlay">
+                        <a href="${project.demo}" target="_blank" rel="noopener">
+                            <i class="fas fa-external-link-alt"></i> Visiter le site
+                        </a>
+                    </div>
+                ` : ''}
             </div>
-        `;
-    }
+
+            <!-- Info -->
+            <div class="project-header">
+                <h3 style="font-family:var(--font-sans);font-size:1rem;font-weight:700;color:var(--text-1);letter-spacing:-0.01em;">${project.title}</h3>
+                ${project.featured ? '<span class="badge-featured">★ Featured</span>' : ''}
+            </div>
+
+            <div class="project-content">
+                <p>${project.description}</p>
+                <div class="project-tags">
+                    ${(project.technologies || []).map(tech => `<span class="tag">${tech}</span>`).join('')}
+                </div>
+            </div>
+
+            ${project.demo || project.github ? `
+                <div class="project-links">
+                    ${project.demo ? `<a href="${project.demo}" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Visiter</a>` : ''}
+                    ${project.github ? `<a href="${project.github}" target="_blank" rel="noopener"><i class="fab fa-github"></i> Code</a>` : ''}
+                </div>
+            ` : ''}
+        </div>
+    `).join('');
 }
 
 // Charger les projets au chargement de la page
 document.addEventListener('DOMContentLoaded', loadProjects);
 
-// Gérer le formulaire de contact
+// Gérer le formulaire de contact - sauvegarde en localStorage
 const contactForm = document.getElementById('contact-form');
 contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const formData = {
+        id: 'msg-' + Date.now(),
         name: contactForm.name.value,
         email: contactForm.email.value,
-        message: contactForm.message.value
+        message: contactForm.message.value,
+        createdAt: new Date().toISOString(),
+        read: false
     };
 
     try {
-        const response = await fetch(`${API_URL}/contact`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
+        // Sauvegarder en localStorage
+        const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+        messages.push(formData);
+        localStorage.setItem('messages', JSON.stringify(messages));
 
-        if (response.ok) {
-            alert('Message envoyé avec succès ! Je vous répondrai bientôt.');
-            contactForm.reset();
-        } else {
-            alert('Une erreur est survenue. Veuillez réessayer.');
-        }
+        alert('Message sauvegardé ! Vous pouvez voir votre message dans l\'admin panel.');
+        contactForm.reset();
     } catch (error) {
         console.error('Erreur:', error);
-        alert('Impossible d\'envoyer le message. Vérifiez que le backend est démarré.');
+        alert('Erreur lors de la sauvegarde du message.');
     }
 });
 
